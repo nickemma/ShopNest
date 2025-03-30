@@ -1,0 +1,144 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: ecommerce
+    networks:
+      - ecommerce-net
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ecommerce"]
+
+  # Kong Database
+  kong-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+      POSTGRES_DB: kong
+    networks:
+      - ecommerce-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kong -d kong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+
+  # Kong Migration (runs once)
+  kong-migrations:
+    image: kong:3.6-alpine
+    command: "kong migrations bootstrap -v"
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+    networks:
+      - ecommerce-net
+    depends_on:
+      kong-db:
+        condition: service_healthy
+
+  # Kong API Gateway
+  kong:
+    image: kong:3.6-alpine
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    networks:
+      - ecommerce-net
+    ports:
+      - "8000:8000" # Proxy
+      - "8443:8443" # SSL Proxy
+      - "8001:8001" # Admin API
+      - "8444:8444" # Admin SSL
+    depends_on:
+      - kong-db
+      - kong-migrations
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Konga UI (Optional)
+  konga:
+    image: pantsel/konga:1.0.0
+    environment:
+      DB_ADAPTER: postgres
+      DB_URI: postgres://kong:kong@kong-db:5432/konga
+      TOKEN_SECRET: change-me
+    networks:
+      - ecommerce-net
+    ports:
+      - "1337:1337"
+    depends_on:
+      - kong-db
+      - kong
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ecommerce-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672" # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    networks:
+      - ecommerce-net
+
+  # Services
+  user-service:
+    build:
+      context: ./backend/user-service
+      args:
+        SERVICE_NAME: user-service
+    environment:
+      DB_URL: postgres://admin:secret@postgres:5432/ecommerce?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: your-secret-key
+    networks:
+      - ecommerce-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+# add the remaining services here also
+
+volumes:
+  kong_data:
+  postgres_data:
+  redis_data:
+
+networks:
+  ecommerce-net:
+    driver: bridge
