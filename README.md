@@ -162,6 +162,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 👤 **Samuel Agbana**
 
 - GitHub: [@starktrix](https://github.com/starktrix)
-- Twitter: [@starktrix](https://twitter.com/starktrix)
+- Twitter: [@starktrix](https://twitter.com/starktrixnet)
 - LinkedIn: [@Samuel Agbana](https://www.linkedin.com/in/starktrix/)
 - Website: [Samuel Agbana](https://starktrix.me)
