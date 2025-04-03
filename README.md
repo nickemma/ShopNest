@@ -6,6 +6,12 @@ A scalable e-commerce platform designed for **real-time inventory management**, 
 
 ---
 
+### Architecture Diagram
+
+![Architecture Diagram](ecommerce-architecture.svg)
+
+---
+
 ## 🛠️ Tech Stack
 
 | Category             | Technologies                                                             |

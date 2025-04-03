@@ -39,21 +39,7 @@
     "currency": "USD | EUR | GBP | JPY | CAD | AUD | CNY",
     "language": "en-US | es-ES | fr-FR | de-DE | ja-JP | zh-CN"
   },
-  // NOTE:START->
-  // This is a generic service, for now development can proceed
-  // but needs to be factored out
-  "authentication": {
-    "passwordHash": "string",
-    "twoFactorEnabled": "boolean",
-    "twoFactorMethod": "email | sms | authenticatorApp"
-  },
-  // <-NOTE:END
-  // Do not track orders in customer schema
-  // "orderStats": {
-  //   "totalOrders": "number",
-  //   "totalSpent": "number",
-  //   "averageOrderValue": "number"
-  // },
+  // Authentication moved to separate service
   "createdAt": "string (ISO 8601)",
   "updatedAt": "string (ISO 8601)"
 }
@@ -67,24 +53,6 @@
   "name": "string",
   "email": "string (email)",
   "roles": ["admin | supervisor | support"],
-  // NOTESTART->
-  // This is a generic service, for now development can proceed
-  // but needs to be factored out
-  "lastLogin": "string (ISO 8601)",
-  "loginHistory": [
-    {
-      "timestamp": "string (ISO 8601)",
-      "ip": "string (IPv4/IPv6)",
-      "device": "string",
-      "successful": "boolean"
-    }
-  ],
-  "authentication": {
-    "passwordHash": "string",
-    "twoFactorEnabled": "boolean",
-    "twoFactorMethod": "email | sms | authenticatorApp"
-  },
-  // <-NOTE:END
   "createdAt": "string (ISO 8601)",
   "updatedAt": "string (ISO 8601)",
   "createdBy": "string (manager UUID)"
@@ -118,29 +86,6 @@
   },
   "mediaIds": ["string (uuid)"],
   "status": "available | out_of_stock | discontinued | coming_soon | draft",
-  // NOTE:START->
-  // Since we have a recommendation service, we can create the rating system in it
-  // or create a separate rating service. The rating would reference product by ID
-  // Why ? This would allow aggreagation of rating across customers and alow effective
-  // recommendation via user-product interactions
-  // "rating": {
-  //   "average": "number (1-5)",
-  //   "count": "number"
-  // },
-  // <-NOTE:END
-  // NOTE:START->
-  // Having this here is redundant and inefficient. Which is the very reason we have
-  // inventory service. Coordinating mutations across inventory and product service
-  // for this is just an headache, let the source of truth be in the inventory service.
-  // That is where it belongs.
-  // <- NOTE:END
-  // "inventory": {
-  //   "stock": "number",
-  //   "lowStockThreshold": "number",
-  //   "reservedStock": "number",
-  //   "backorderAllowed": "boolean",
-  //   "expectedRestockDate": "string (ISO 8601 date, optional)"
-  // },
   "tags": ["string"],
   "relatedProducts": ["string (product UUIDs)"],
   "variants": [
@@ -154,13 +99,7 @@
       "price": {
         "amount": "number (positive)",
         "currency": "USD | EUR | GBP"
-      },
-      // Read comment on inventory objet above. Variant is simply another product (similar)
-      // "stock": {
-      //   "available": "number (>=0)",
-      //   "reserved": "number (>=0)",
-      //   "imageUrl": ["string (URL)"]
-      // }
+      }
     }
   ],
   "shipping": {
@@ -177,7 +116,7 @@
     "taxClass": "standard | reduced | zero"
   },
   "createdAt": "string (ISO 8601)",
-  "updatedAt": "string (ISO 8601)",
+  "updatedAt": "string (ISO 8601)"
 }
 ```
 
@@ -187,8 +126,6 @@
 {
   "mediaId": "string (uuid)",
   "productId": "string (uuid)",
-  // we can have more than a single image url
-  // changer from string to array of strings
   "imageUrl": ["string (url)"],
   "metadata": {
     "width": "number (pixels, optional)",
@@ -209,11 +146,7 @@
 {
   "inventoryId": "string (uuid)",
   "productId": "string (reference)",
-  // The current system is not managing warehouses, hence removal of id field.
-  // Assunption is we have a single warehouse, but incase we have more than one,
-  // specify the location only. 
   "warehouse": {
-    // "id": "string",
     "location": "string"
   },
   "stock": {
@@ -247,15 +180,6 @@
 {
   "orderId": "string (uuid)",
   "ordernumber": "string (human-readable)",
-  // NOTE:START->
-  // Aside the id field, are any other immutable ? any mutable one should be removed.
-  // Why ? Displaying the order with the customer details contained here when the details
-  // has been updated in the user service results in stale data.
-  // NB: Proceeding with this is easy and simplifies development workflow but data inconsistency
-  // is guaranteed if we allow customer to change any of email, name or phone.
-  // Professional Advice:
-  // "customerId": "string (reference)",
-  // <-NOTE:END
   "customer": {
     "id": "string (reference)",
     "email": "string (email)",
@@ -265,14 +189,6 @@
   "items": [
     {
       "productId": "string (UUID)",
-      // NOTE:START->
-      // variant is just a product. When creating the products,
-      // other products can be selected (linked) to the currently created
-      // product due to some features and similarities. They come into play when
-      // displaying products to customers and more importantly, in recommendation service
-      // in product-proudct recommendations
-      // <-NOTE:END
-      // "variantId": "string (UUID, optional)",
       "name": "string",
       "sku": "string",
       "quantity": "number",
@@ -296,18 +212,8 @@
     "discount": "number",
     "grandTotal": "number"
   },
-    // NOTE:START->
-    // Question: Why reference the transaction ID ? Note that it is must that the payment
-    // service references the orderId. Which is why I included the payment intent. 
-    // You can reference the payment intent but
-    // Professional Advice:
-    // Let payment intent be source of truth
-    // <-NOTE:END
-    // "payment": {
-    //   "method": "credit_card | paypal | bank_transfer | crypto",
-    //   "transactionId": "string",
-    //   "status": ["pending", "captured", "refunded"]
-    // },
+  // No payment details - only payment intent reference if needed
+  "paymentIntentId": "string (UUID, reference)",
   "fulfillment": {
     "priority": "standard | express | same_day",
     "carbonOffset": "boolean",
@@ -426,17 +332,7 @@
       }
     ]
   },
-  // refund can only be one, not an array. It is applied to a single payment (the current payment)
-  // "refunds": [
-  //   {
-  //     "refundId": "string (UUID)",
-  //     "amount": "number",
-  //     "reason": "customer_request | damaged | incorrect_item | fraud | other",
-  //     "status": "pending | succeeded | failed",
-  //     "createdAt": "string (ISO 8601 datetime)"
-  //   }
-  // ],
-  "refundId": "string (reference)", // reference the refund model 
+  "refundId": "string (reference)", // reference the refund model
   "transactionFee": "number",
   "gateway": "stripe | paypal | adyen | braintree | square",
   "gatewayResponse": {
@@ -456,15 +352,8 @@
 {
   "reviewId": "string (UUID)",
   "productId": "string (UUID)",
-  // Question: Why are we reviewing an order ? Review is typically done by 
-  // a CUSTOMER on a PRODUCT.
-  // "orderId": "string (UUID, optional)",
   "customerId": "string (UUID)",
-  // field is immutable, but specifying it here means choosing between ease of display
-  // or data consistency.
-  // Professional Advice: Do not specify.
-  // Ease of development: Proceed with this and neccessary refactoring can be done later. 
-  // "customerName": "string (optional, display name)", 
+  "orderId": "string (UUID, optional, for verified purchase only)",
   "title": "string",
   "rating": "number (1-5)",
   "comment": "string",
@@ -496,10 +385,10 @@
 ```json
 // This is the aggregate result ratings from the review model
 {
-    "productId": "string (UUID)",
-    "averageRating": "number (float)",
-    "ratingCount": "number",
-    // include other fields as deemed necessary
+  "productId": "string (UUID)",
+  "averageRating": "number (float)",
+  "ratingCount": "number"
+  // include other fields as deemed necessary
 }
 ```
 
@@ -873,5 +762,41 @@
   "active": "boolean",
   "createdAt": "string (ISO 8601 datetime)",
   "updatedAt": "string (ISO 8601 datetime)"
+}
+```
+
+### Auth Model
+
+```json
+{
+  "authId": "string (UUID)",
+  "userId": "string (UUID, reference)",
+  "userType": "customer | manager",
+  "email": "string (email)",
+  "passwordHash": "string",
+  "twoFactorEnabled": "boolean",
+  "twoFactorMethod": "email | sms | authenticatorApp",
+  "sessionData": {
+    "lastLogin": "string (ISO 8601)",
+    "currentToken": "string",
+    "tokenExpiry": "string (ISO 8601)",
+    "loginAttempts": "number",
+    "lockedUntil": "string (ISO 8601, optional)"
+  },
+  "loginHistory": [
+    {
+      "timestamp": "string (ISO 8601)",
+      "ip": "string (IPv4/IPv6)",
+      "device": "string",
+      "successful": "boolean",
+      "location": "string (optional)"
+    }
+  ],
+  "passwordReset": {
+    "token": "string (optional)",
+    "expiresAt": "string (ISO 8601, optional)"
+  },
+  "createdAt": "string (ISO 8601)",
+  "updatedAt": "string (ISO 8601)"
 }
 ```

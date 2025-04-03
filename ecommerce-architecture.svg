@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700">
+  <!-- Background -->
+  <rect width="1000" height="700" fill="#f8f9fa" />
+  
+  <!-- Title -->
+  <text x="500" y="40" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold">E-Commerce Microservices Architecture</text>
+  
+  <!-- Core Services -->
+  <rect x="50" y="80" width="900" height="180" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="2" />
+  <text x="500" y="100" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold">Core Services</text>
+  
+  <!-- User Service -->
+  <rect x="70" y="120" width="150" height="120" rx="5" fill="#4dabf7" stroke="#1864ab" stroke-width="2" />
+  <text x="145" y="145" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">User Service</text>
+  <text x="145" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- User Management</text>
+  <text x="145" y="190" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Authentication</text>
+  <text x="145" y="210" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Preferences</text>
+  
+  <!-- Product Service -->
+  <rect x="240" y="120" width="150" height="120" rx="5" fill="#4dabf7" stroke="#1864ab" stroke-width="2" />
+  <text x="315" y="145" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Product Service</text>
+  <text x="315" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Product Catalog</text>
+  <text x="315" y="190" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Media</text>
+  <text x="315" y="210" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Categories</text>
+  
+  <!-- Order Service -->
+  <rect x="410" y="120" width="150" height="120" rx="5" fill="#4dabf7" stroke="#1864ab" stroke-width="2" />
+  <text x="485" y="145" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Order Service</text>
+  <text x="485" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Order Management</text>
+  <text x="485" y="190" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Cart Management</text>
+  <text x="485" y="210" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Wishlist</text>
+  
+  <!-- Inventory Service -->
+  <rect x="580" y="120" width="150" height="120" rx="5" fill="#4dabf7" stroke="#1864ab" stroke-width="2" />
+  <text x="655" y="145" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Inventory Service</text>
+  <text x="655" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Stock Management</text>
+  <text x="655" y="190" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Warehouse</text>
+  <text x="655" y="210" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Alerts</text>
+  
+  <!-- Payment Service -->
+  <rect x="750" y="120" width="150" height="120" rx="5" fill="#4dabf7" stroke="#1864ab" stroke-width="2" />
+  <text x="825" y="145" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Payment Service</text>
+  <text x="825" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Payment Processing</text>
+  <text x="825" y="190" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Refunds</text>
+  <text x="825" y="210" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Risk Analysis</text>
+  
+  <!-- Supporting Services -->
+  <rect x="50" y="280" width="900" height="180" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="2" />
+  <text x="500" y="300" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold">Supporting Services</text>
+  
+  <!-- Pricing Service -->
+  <rect x="70" y="320" width="150" height="120" rx="5" fill="#82c91e" stroke="#5c940d" stroke-width="2" />
+  <text x="145" y="345" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Pricing Service</text>
+  <text x="145" y="370" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Price Rules</text>
+  <text x="145" y="390" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Discount Codes</text>
+  <text x="145" y="410" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Tax Configuration</text>
+  
+  <!-- Review Service -->
+  <rect x="240" y="320" width="150" height="120" rx="5" fill="#82c91e" stroke="#5c940d" stroke-width="2" />
+  <text x="315" y="345" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Review Service</text>
+  <text x="315" y="370" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Product Reviews</text>
+  <text x="315" y="390" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Ratings</text>
+  <text x="315" y="410" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Moderation</text>
+  
+  <!-- Recommendation Service -->
+  <rect x="410" y="320" width="150" height="120" rx="5" fill="#82c91e" stroke="#5c940d" stroke-width="2" />
+  <text x="485" y="345" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Recommendation</text>
+  <text x="485" y="370" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Product Recommendations</text>
+  <text x="485" y="390" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Personalization</text>
+  <text x="485" y="410" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Analytics</text>
+  
+  <!-- Shipping Service -->
+  <rect x="580" y="320" width="150" height="120" rx="5" fill="#82c91e" stroke="#5c940d" stroke-width="2" />
+  <text x="655" y="345" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Shipping Service</text>
+  <text x="655" y="370" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Shipping Rates</text>
+  <text x="655" y="390" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Tracking</text>
+  <text x="655" y="410" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Carrier Integration</text>
+  
+  <!-- Notification Service -->
+  <rect x="750" y="320" width="150" height="120" rx="5" fill="#82c91e" stroke="#5c940d" stroke-width="2" />
+  <text x="825" y="345" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Notification Service</text>
+  <text x="825" y="370" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Email</text>
+  <text x="825" y="390" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- SMS</text>
+  <text x="825" y="410" font-family="Arial" font-size="12" text-anchor="middle" fill="white">- Push Notifications</text>
+  
+  <!-- Infrastructure Layer -->
+  <rect x="50" y="480" width="900" height="180" rx="10" fill="#e9ecef" stroke="#495057" stroke-width="2" />
+  <text x="500" y="500" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold">Infrastructure Layer</text>
+  
+  <!-- API Gateway -->
+  <rect x="70" y="520" width="215" height="80" rx="5" fill="#f08c00" stroke="#e67700" stroke-width="2" />
+  <text x="177.5" y="560" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">API Gateway</text>
+  
+  <!-- Event Bus -->
+  <rect x="300" y="520" width="215" height="80" rx="5" fill="#f08c00" stroke="#e67700" stroke-width="2" />
+  <text x="407.5" y="560" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Event Bus</text>
+  
+  <!-- Auth Service -->
+  <rect x="530" y="520" width="215" height="80" rx="5" fill="#f08c00" stroke="#e67700" stroke-width="2" />
+  <text x="637.5" y="560" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Authentication Service</text>
+  
+  <!-- Audit Log Service -->
+  <rect x="760" y="520" width="160" height="80" rx="5" fill="#f08c00" stroke="#e67700" stroke-width="2" />
+  <text x="840" y="560" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Audit Log Service</text>
+  
+  <!-- Client Applications -->
+  <rect x="150" y="620" width="700" height="60" rx="5" fill="#339af0" stroke="#1c7ed6" stroke-width="2" />
+  <text x="500" y="655" font-family="Arial" font-size="16" text-anchor="middle" fill="white" font-weight="bold">Client Applications (Web, Mobile, Admin)</text>
+  
+  <!-- Connections -->
+  <!-- Core to Supporting Services -->
+  <line x1="500" y1="260" x2="500" y2="280" stroke="#495057" stroke-width="3" stroke-dasharray="5,5" />
+  
+  <!-- Supporting to Infrastructure -->
+  <line x1="500" y1="460" x2="500" y2="480" stroke="#495057" stroke-width="3" stroke-dasharray="5,5" />
+  
+  <!-- Infrastructure to Client -->
+  <line x1="500" y1="600" x2="500" y2="620" stroke="#495057" stroke-width="3" stroke-dasharray="5,5" />
+</svg>
