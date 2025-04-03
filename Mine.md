@@ -52,7 +52,7 @@
   "managerId": "string (uuid)",
   "name": "string",
   "email": "string (email)",
-  "roles": ["admin | supervisor | support"],
+  "roles": ["admin | support"],
   "createdAt": "string (ISO 8601)",
   "updatedAt": "string (ISO 8601)",
   "createdBy": "string (manager UUID)"
