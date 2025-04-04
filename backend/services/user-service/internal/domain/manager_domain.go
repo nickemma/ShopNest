@@ -14,5 +14,5 @@ type RegisterManager struct {
 	ManagerID string    `json:"managerId"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Roles     string    `json:"roles"` // "Admin" | "Support"
+	Role     string    `json:"role"` // "Admin" | "Support"
 }
