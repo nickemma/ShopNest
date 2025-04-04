@@ -16,12 +16,12 @@ import (
 
 type ManagerService interface {
 	Register(ctx context.Context, name, email, password string) (string, error)
-	ApproveRegisteration(ctx context.Context, email string) (string, error)
+	ApproveRegistration(ctx context.Context, email string) (string, error)
 }
 
 type managerService struct {
-	repo repository.ManagerRepository
-	rabbitMQ *amqp091.Channel
+	repo       repository.ManagerRepository
+	rabbitMQ   *amqp091.Channel
 	smtpConfig config.SMTPConfig
 }
 
@@ -30,12 +30,11 @@ func NewManagerService(
 	rabbitMQ *amqp091.Channel,
 	smtpConfig config.SMTPConfig,
 
-	) ManagerService {
+) ManagerService {
 	return &managerService{
-		repo: repo,
+		repo:       repo,
 		rabbitMQ:   rabbitMQ,
 		smtpConfig: smtpConfig,
-
 	}
 }
 
@@ -56,7 +55,7 @@ func (mgr *managerService) Register(ctx context.Context, name, email, password s
 		Name:      name,
 		Email:     email,
 		Role:      "ADMIN",
-		Approved:  false,
+		Approved:  false, // set to false, enforced in lower layers (infra.)
 	}
 	auth := &domain.Auth{
 		AuthID:       authID,
@@ -74,7 +73,7 @@ func (mgr *managerService) Register(ctx context.Context, name, email, password s
 		return "", err
 	}
 
-// publish the manager email and name to the super admin/permissioned manager
+	// publish the manager email and name to the super admin/permissioned manager
 	emailBody := []byte(`{"email": "` + email + `", "name": "` + manager.Name + `"}`)
 	// NOTE: change this "email_queue" to manager_approval_queue
 	err = mgr.rabbitMQ.Publish("", "email_queue", false, false, amqp091.Publishing{
@@ -90,11 +89,11 @@ func (mgr *managerService) Register(ctx context.Context, name, email, password s
 }
 
 // Callable only by super-admin
-func (mgr *managerService) ApproveRegisteration(ctx context.Context, email string) (string, error) {
+func (mgr *managerService) ApproveRegistration(ctx context.Context, email string) (string, error) {
 	if err := mgr.repo.ApproveManager(ctx, email); err != nil {
 		return "", err
 	}
 
 	return fmt.Sprintf("manager with email address %+s has been approved\n", email), nil
-	
+
 }
