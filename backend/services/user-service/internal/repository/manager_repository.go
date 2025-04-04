@@ -44,7 +44,7 @@ func (mgr *PostgresManagerRepository) RegisterManager(ctx context.Context, manag
 		INSERT INTO managers (manager_id, name, email, role, approved)
 		VALUES ($1, $2, $3, $4, $5)`
 
-	_, err = tx.Exec(ctx, mgrQuery, manager.ManagerID, manager.Name, manager.Email, manager.Role, manager.Approved)
+	_, err = tx.Exec(ctx, mgrQuery, manager.ManagerID, manager.Name, manager.Email, manager.Role, /*manager.Approved*/false)
 	if err != nil {
 		return err
 	}
