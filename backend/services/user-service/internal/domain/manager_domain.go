@@ -15,4 +15,5 @@ type RegisterManager struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Role     string    `json:"role"` // "Admin" | "Support"
+	Approved	bool  	`json:"approved"`
 }
