@@ -1,31 +1,33 @@
 # Makefile for Ecommerce Backend
 # This Makefile is used to manage the development environment for the backend
 
-.PHONY: help docker-up docker-down run migrate-up migrate-down test
+.PHONY: help all build up down migrate test
 
 help:
 	@echo "Available commands:"
-	@echo "  docker-up     - Start Docker containers"
-	@echo "  docker-down   - Stop Docker containers"
-	@echo "  run           - Run the Go application"
-	@echo "  migrate-up    - Run database migrations"
-	@echo "  migrate-down  - Rollback database migrations"
+	@echo "  all     - Builds up"
+	@echo "  build   - Build Docker images"
+	@echo "  up           - Start all services"
+	@echo "  down    - Stop all services"
+	@echo "  migrate  - Run migrations (assumes postgres is running)"
 	@echo "  test          - Runs the test suite"
 
-docker-up:
-	docker compose up --build
+all: build up
 
-docker-down:
-	docker compose down
+# Build Docker images
+build:
+	docker-compose -f docker-compose.yml build --no-cache
 
-run:
-	go run main.go
+# Start all services
+up:
+	docker-compose -f docker-compose.yml up -d
 
-migrate-up:
-	goose -dir ./migration postgres "host=localhost user=root password=postgres dbname=postgres port=5432 sslmode=disable" up
+# Stop all services
+down:
+	docker-compose -f docker-compose.yml down
 
-migrate-down:
-	goose -dir ./migration postgres "host=localhost user=root password=postgres dbname=postgres port=5432 sslmode=disable" down
+migrate:
+	docker-compose exec user-service goose -dir migrations postgres "postgres://user:pass@postgres:5432/shopnest?sslmode=disable" up
 
 test:
 	go test -v ./...
