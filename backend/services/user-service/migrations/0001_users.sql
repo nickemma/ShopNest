@@ -22,12 +22,13 @@ CREATE TABLE auth (
 );
 
 CREATE TABLE managers (
-                        manager_id UUID PRIMARY KEY,
+                        manager_id VARCHAR(36) PRIMARY KEY,
                         name       VARCHAR(255) NOT NULL,
                         email      VARCHAR(255) UNIQUE NOT NULL,
                         role      VARCHAR(20) NOT NULL CHECK (role IN ('ADMIN', 'SUPPORT')),
-                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                        approved BOOLEAN DEFAULT FALSE,
+                        created_at TIMESTAMP NOT NULL,
+                        updated_at TIMESTAMP NOT NULL
 );
 
 
