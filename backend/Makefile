@@ -27,7 +27,7 @@ down:
 	docker-compose -f docker-compose.yml down
 
 migrate:
-	docker-compose exec user-service goose -dir /app/migrations postgres "postgres://user:pass@postgres:5432/shopnest?sslmode=disable" up
+	docker-compose exec user-service goose -dir migrations postgres "postgres://user:pass@postgres:5432/shopnest?sslmode=disable" up
 
 test:
 	go test -v ./...

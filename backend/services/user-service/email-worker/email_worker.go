@@ -107,16 +107,11 @@ func processMessage(msg amqp091.Delivery, auth smtp.Auth, cfg config.Config) {
 	emailBody := fmt.Sprintf("Subject: Email Verification\n\nVerify your email: %s", verifyURL)
 
 	// Send email
-	err := smtp.SendMail(
-		fmt.Sprintf("%s:%s", cfg.SMTP.Server, cfg.SMTP.Port),
-		auth,
-		cfg.SMTP.User,
-		[]string{data.Email},
-		[]byte(emailBody),
-	)
-
+	addr := fmt.Sprintf("%s:%s", cfg.SMTP.Server, cfg.SMTP.Port)
+	err := smtp.SendMail(addr, auth, cfg.SMTP.User, []string{data.Email}, []byte(emailBody))
 	if err != nil {
-		log.Printf("Failed to send email to %s: %v", data.Email, err)
+		// Add more detailed error logging
+		log.Printf("Failed to send email to %s: %v (SMTP addr: %s)", data.Email, err, addr)
 		return
 	}
 
