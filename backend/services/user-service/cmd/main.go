@@ -89,7 +89,7 @@ func main() {
 
 	api := r.Group("/api/v1")
 	routes.RegisterAuthRoutes(api.Group("/auth"), authHandler, cfg)
-	routes.RegisterCustomerRoutes(api.Group("/users"), userHandler, cfg)
+	routes.RegisterCustomerRoutes(api.Group("/customers"), userHandler, cfg)
 	routes.RegisterManagerRoutes(api.Group("/managers"), managerHandler, cfg)
 
 	// Setup and run server
