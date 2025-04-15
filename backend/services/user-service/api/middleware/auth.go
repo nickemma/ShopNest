@@ -39,8 +39,11 @@ func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 
 		// Set user context
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			c.Set("userID", claims["sub"])
+			c.Set("authId", claims["sub"])
+			c.Set("userId", claims["userId"])
+			c.Set("userType", claims["userType"])
 			c.Set("email", claims["email"])
+
 		}
 
 		c.Next()
