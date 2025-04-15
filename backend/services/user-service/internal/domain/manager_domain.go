@@ -9,11 +9,10 @@ type Manager struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-
 type RegisterManager struct {
-	ManagerID string    `json:"managerId"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Role     string    `json:"role"` // "Admin" | "Support"
-	Approved	bool  	`json:"approved"`
+	ManagerID string `json:"managerId"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Role      string `json:"role"` // "Admin" | "Support"
+	Approved  bool   `json:"approved"`
 }

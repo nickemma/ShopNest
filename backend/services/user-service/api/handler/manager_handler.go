@@ -8,18 +8,18 @@ import (
 	"github.com/shopnest/user-service/internal/application"
 )
 
-// UserHandler handles HTTP requests for user operations
-type UserHandler struct {
-	service application.UserService
+// ManagerHandler handles HTTP requests for user operations
+type ManagerHandler struct {
+	service application.ManagerService
 }
 
-// NewUserHandler creates a new handler instance
-func NewCustomerHandler(service application.UserService) *UserHandler {
-	return &UserHandler{service: service}
+// NewManagerHandler creates a new handler instance
+func NewManagerHandler(service application.ManagerService) *ManagerHandler {
+	return &ManagerHandler{service: service}
 }
 
 // Register handles POST /register
-func (h *UserHandler) RegisterCustomer(c *gin.Context) {
+func (h *ManagerHandler) RegisterManager(c *gin.Context) {
 	var req struct {
 		Name   string `json:"name" binding:"required"`
 		Email  string `json:"email"`
@@ -55,7 +55,7 @@ func (h *UserHandler) RegisterCustomer(c *gin.Context) {
 }
 
 // Register handles POST /activate
-func (h *UserHandler) ActivateUser(c *gin.Context) {
+func (h *ManagerHandler) ApproveRegistration(c *gin.Context) {
 	userType, ok := c.Get("userType")
 
 	if !ok {
@@ -63,8 +63,9 @@ func (h *UserHandler) ActivateUser(c *gin.Context) {
 		return
 	}
 
+	// this will be extended with roles or super admin only
 	if userType.(string) != "MANAGER" {
-		c.JSON(http.StatusForbidden, gin.H{"message": "only a manager can activate user"})
+		c.JSON(http.StatusForbidden, gin.H{"message": "only a manager can approve other manager"})
 		return
 	}
 	var req struct {
@@ -75,7 +76,7 @@ func (h *UserHandler) ActivateUser(c *gin.Context) {
 		return
 	}
 
-	userID, err := h.service.ActivateUser(c.Request.Context(), req.AuthID)
+	userID, err := h.service.ApproveRegistration(c.Request.Context(), req.AuthID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -84,14 +85,14 @@ func (h *UserHandler) ActivateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"userId": userID, "message": "user activated"})
 }
 
-func (h *UserHandler) GetProfile(c *gin.Context) {
+func (h *ManagerHandler) GetManagerProfile(c *gin.Context) {
 	userId, ok := c.Get("userId")
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing userId")})
 		return
 	}
 
-	profile, err := h.service.GetUserProfile(c.Request.Context(), userId.(string))
+	profile, err := h.service.GetManagerProfile(c.Request.Context(), userId.(string))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

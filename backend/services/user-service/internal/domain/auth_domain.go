@@ -9,6 +9,7 @@ type Auth struct {
 	UserType     string      `json:"userType"` // "customer" | "manager"
 	Email        string      `json:"email"`
 	PasswordHash string      `json:"passwordHash"`
+	Verified     bool        `json:"verfied"`
 	SessionData  SessionData `json:"sessionData"`
 	CreatedAt    time.Time   `json:"createdAt"`
 	UpdatedAt    time.Time   `json:"updatedAt"`

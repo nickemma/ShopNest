@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"log"
+
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
@@ -10,7 +13,6 @@ import (
 	"github.com/shopnest/user-service/config"
 	"github.com/shopnest/user-service/internal/application"
 	"github.com/shopnest/user-service/internal/repository"
-	"log"
 )
 
 func main() {
@@ -52,9 +54,12 @@ func main() {
 	}
 
 	// Initialize repository, service, and handler
-	repo := repository.NewPostgresUserRepository(db)
-	service := application.NewUserService(
-		repo,
+	customerRrepo := repository.NewPostgresCustomerRepository(db)
+	authRepo := repository.NewPostgresAuthRepository(db)
+	managerRepo := repository.NewPostgresManagerRepository(db)
+
+	authService := application.NewAuthService(
+		authRepo,
 		redisClient,
 		ch,
 		config.SMTPConfig{ // Match the struct type exactly
@@ -65,11 +70,29 @@ func main() {
 		},
 		cfg.JWTSecret,
 	)
+	authHandler := handler.NewAuthHandler(authService)
 
-	handler := handler.NewUserHandler(service)
+	customerService := application.NewUserService(
+		customerRrepo,
+		authRepo,
+	)
+	userHandler := handler.NewCustomerHandler(customerService)
+
+	managerService := application.NewManagerService(
+		managerRepo,
+		authRepo,
+	)
+
+	managerHandler := handler.NewManagerHandler(managerService)
+
+	r := gin.Default()
+
+	api := r.Group("/api/v1")
+	routes.RegisterAuthRoutes(api.Group("/auth"), authHandler, cfg)
+	routes.RegisterCustomerRoutes(api.Group("/users"), userHandler, cfg)
+	routes.RegisterManagerRoutes(api.Group("/managers"), managerHandler, cfg)
 
 	// Setup and run server
-	r := routes.SetupRouter(handler, cfg)
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}

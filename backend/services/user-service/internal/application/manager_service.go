@@ -2,51 +2,63 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/shopnest/user-service/config"
 	"github.com/shopnest/user-service/internal/domain"
 	"github.com/shopnest/user-service/internal/repository"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type ManagerService interface {
-	Register(ctx context.Context, name, email, password string) (string, error)
-	ApproveRegistration(ctx context.Context, email string) (string, error)
+	Register(ctx context.Context, authId, name, email string) (string, error)
+	ApproveRegistration(ctx context.Context, authId string) (string, error)
+	GetManagerProfile(ctx context.Context, managerId string) (*domain.Manager, error)
 }
 
 type managerService struct {
 	repo       repository.ManagerRepository
+	authRepo   repository.AuthRepository
 	rabbitMQ   *amqp091.Channel
 	smtpConfig config.SMTPConfig
 }
 
 func NewManagerService(
 	repo repository.ManagerRepository,
-	rabbitMQ *amqp091.Channel,
-	smtpConfig config.SMTPConfig,
+	authRepo repository.AuthRepository,
 
 ) ManagerService {
 	return &managerService{
-		repo:       repo,
-		rabbitMQ:   rabbitMQ,
-		smtpConfig: smtpConfig,
+		repo:     repo,
+		authRepo: authRepo,
 	}
 }
 
 // manager signs up and waits for the super admin approval.
-func (mgr *managerService) Register(ctx context.Context, name, email, password string) (string, error) {
+func (mgr *managerService) Register(ctx context.Context, authId, name, email string) (string, error) {
 	// Generate UUIDs for user and auth
 	managerID := uuid.New().String()
-	authID := uuid.New().String()
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// This might need to make a call to the authDB to verifiy
+	// the authID+email. This would mean the email is not to be passed
+	// explicitly but obtained from the access token and compared against
+	// authDB entries
+	auth, err := mgr.authRepo.GetAccount(ctx, authId)
 	if err != nil {
 		return "", err
+	}
+
+	if auth.Email != email {
+		return "", errors.New("account email does not match")
+	}
+
+	// redundant as this is already checked on login
+	// user needs to be logged in before registering
+	if !auth.Verified {
+		return "", errors.New("email not verified")
 	}
 
 	// Create user and auth models
@@ -57,31 +69,10 @@ func (mgr *managerService) Register(ctx context.Context, name, email, password s
 		Role:      "ADMIN",
 		Approved:  false, // set to false, enforced in lower layers (infra.)
 	}
-	auth := &domain.Auth{
-		AuthID:       authID,
-		UserID:       managerID,
-		UserType:     "MANAGER",
-		Email:        email,
-		PasswordHash: string(passwordHash),
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-	}
 
 	// Save to database
-	if err := mgr.repo.RegisterManager(ctx, manager, auth); err != nil {
+	if err := mgr.repo.RegisterManager(ctx, authId, manager); err != nil {
 		log.Printf("Failed to save a manager to database: %v", err)
-		return "", err
-	}
-
-	// publish the manager email and name to the super admin/permissioned manager
-	emailBody := []byte(`{"email": "` + email + `", "name": "` + manager.Name + `"}`)
-	// NOTE: change this "email_queue" to manager_approval_queue
-	err = mgr.rabbitMQ.Publish("", "email_queue", false, false, amqp091.Publishing{
-		ContentType: "application/json",
-		Body:        emailBody,
-	})
-	if err != nil {
-		log.Printf("Failed to publish email: %v", err)
 		return "", err
 	}
 
@@ -89,11 +80,29 @@ func (mgr *managerService) Register(ctx context.Context, name, email, password s
 }
 
 // Callable only by super-admin
-func (mgr *managerService) ApproveRegistration(ctx context.Context, email string) (string, error) {
-	if err := mgr.repo.ApproveManager(ctx, email); err != nil {
+func (mgr *managerService) ApproveRegistration(ctx context.Context, authId string) (string, error) {
+
+	auth, err := mgr.authRepo.GetAccount(ctx, authId)
+	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprintf("manager with email address %+s has been approved\n", email), nil
+	if !auth.Verified {
+		return "", errors.New("cannot approve: manager yet to verify")
+	}
+	if err := mgr.repo.ApproveManager(ctx, auth.UserID); err != nil {
+		return "", err
+	}
 
+	return fmt.Sprintf("manager with email address %+s has been approved\n", auth.Email), nil
+
+}
+
+func (mgr *managerService) GetManagerProfile(ctx context.Context, managerId string) (*domain.Manager, error) {
+	manager, err := mgr.repo.GetManager(ctx, managerId)
+	if err != nil {
+		log.Printf("Failed to retrieve manager profile: %v", err)
+		return nil, err
+	}
+	return manager, nil
 }

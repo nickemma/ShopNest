@@ -8,19 +8,19 @@ import (
 )
 
 // SetupRouter configures the Gin router
-func RegisterCustomerRoutes(r *gin.RouterGroup, handler *handler.UserHandler, cfg config.Config) {
+func RegisterAuthRoutes(r *gin.RouterGroup, handler *handler.AuthHandler, cfg config.Config) {
 
 	// User Public routes
+	r.POST("/register", handler.Register)
+	r.GET("/verify-email", handler.VerifyEmail)
+	r.POST("/login", handler.Login)
 
 	// Protected routes
 	auth := r.Group("/")
 	auth.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 	{
 		// Add your protected routes here
-		auth.POST("/register", handler.RegisterCustomer)
-
-		auth.PATCH("/activate", handler.ActivateUser)
-		auth.GET("/profile", handler.GetProfile)
+		auth.GET("/account", handler.GetAccount)
 	}
 
 }

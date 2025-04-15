@@ -17,6 +17,7 @@ CREATE TABLE auth (
                       user_type VARCHAR(20) NOT NULL,
                       email VARCHAR(255) UNIQUE NOT NULL,
                       password_hash VARCHAR(255) NOT NULL,
+                      verified BOOLEAN DEFAULT FALSE,  
                       created_at TIMESTAMP NOT NULL,
                       updated_at TIMESTAMP NOT NULL
 );
