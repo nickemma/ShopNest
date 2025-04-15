@@ -8,7 +8,7 @@ import (
 )
 
 // SetupRouter configures the Gin router
-func RegisterCustomerRoutes(r *gin.RouterGroup, handler *handler.UserHandler, cfg config.Config) {
+func RegisterCustomerRoutes(r *gin.RouterGroup, handler *handler.CustomerHandler, cfg config.Config) {
 
 	// User Public routes
 
@@ -19,8 +19,8 @@ func RegisterCustomerRoutes(r *gin.RouterGroup, handler *handler.UserHandler, cf
 		// Add your protected routes here
 		auth.POST("/register", handler.RegisterCustomer)
 
-		auth.PATCH("/activate", handler.ActivateUser)
-		auth.GET("/profile", handler.GetProfile)
+		auth.PATCH("/activate", handler.ActivateCustomer)
+		auth.GET("/profile", handler.GetCustomerProfile)
 	}
 
 }

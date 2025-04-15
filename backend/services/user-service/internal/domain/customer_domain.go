@@ -3,8 +3,8 @@ package domain
 import "time"
 
 // User represents a customer in the system
-type User struct {
-	UserID      string      `json:"userId"`
+type Customer struct {
+	CustomerID  string      `json:"customerId"`
 	Name        string      `json:"name"`
 	Email       string      `json:"email"`
 	Phone       string      `json:"phone"`

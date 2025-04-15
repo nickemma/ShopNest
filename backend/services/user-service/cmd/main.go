@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Initialize repository, service, and handler
-	customerRrepo := repository.NewPostgresCustomerRepository(db)
+	customerRepo := repository.NewPostgresCustomerRepository(db)
 	authRepo := repository.NewPostgresAuthRepository(db)
 	managerRepo := repository.NewPostgresManagerRepository(db)
 
@@ -72,8 +72,8 @@ func main() {
 	)
 	authHandler := handler.NewAuthHandler(authService)
 
-	customerService := application.NewUserService(
-		customerRrepo,
+	customerService := application.NewCustomerService(
+		customerRepo,
 		authRepo,
 	)
 	userHandler := handler.NewCustomerHandler(customerService)

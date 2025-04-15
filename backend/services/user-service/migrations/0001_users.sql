@@ -1,6 +1,6 @@
 -- +goose Up
-CREATE TABLE users (
-                       user_id VARCHAR(36) PRIMARY KEY,
+CREATE TABLE customers (
+                       customer_id VARCHAR(36) PRIMARY KEY,
                        name VARCHAR(255) NOT NULL,
                        email VARCHAR(255) UNIQUE NOT NULL,
                        phone VARCHAR(20),
@@ -35,5 +35,5 @@ CREATE TABLE managers (
 
 -- +goose Down
 DROP TABLE auth;
-DROP TABLE users;
+DROP TABLE customers;
 DROP TABLE managers;

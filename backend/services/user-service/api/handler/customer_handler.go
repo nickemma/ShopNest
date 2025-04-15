@@ -9,17 +9,17 @@ import (
 )
 
 // UserHandler handles HTTP requests for user operations
-type UserHandler struct {
-	service application.UserService
+type CustomerHandler struct {
+	service application.CustomerService
 }
 
 // NewUserHandler creates a new handler instance
-func NewCustomerHandler(service application.UserService) *UserHandler {
-	return &UserHandler{service: service}
+func NewCustomerHandler(service application.CustomerService) *CustomerHandler {
+	return &CustomerHandler{service: service}
 }
 
 // Register handles POST /register
-func (h *UserHandler) RegisterCustomer(c *gin.Context) {
+func (h *CustomerHandler) RegisterCustomer(c *gin.Context) {
 	var req struct {
 		Name   string `json:"name" binding:"required"`
 		Email  string `json:"email"`
@@ -45,17 +45,17 @@ func (h *UserHandler) RegisterCustomer(c *gin.Context) {
 	req.AuthId = authId.(string)
 	req.Email = email.(string)
 
-	userID, err := h.service.Register(c.Request.Context(), req.AuthId, req.Name, req.Email)
+	customerID, err := h.service.RegisterCustomer(c.Request.Context(), req.AuthId, req.Name, req.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"userId": userID})
+	c.JSON(http.StatusCreated, gin.H{"customerId": customerID})
 }
 
 // Register handles POST /activate
-func (h *UserHandler) ActivateUser(c *gin.Context) {
+func (h *CustomerHandler) ActivateCustomer(c *gin.Context) {
 	userType, ok := c.Get("userType")
 
 	if !ok {
@@ -75,23 +75,23 @@ func (h *UserHandler) ActivateUser(c *gin.Context) {
 		return
 	}
 
-	userID, err := h.service.ActivateUser(c.Request.Context(), req.AuthID)
+	customerID, err := h.service.ActivateCustomer(c.Request.Context(), req.AuthID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"userId": userID, "message": "user activated"})
+	c.JSON(http.StatusOK, gin.H{"customerId": customerID, "message": "customer activated"})
 }
 
-func (h *UserHandler) GetProfile(c *gin.Context) {
+func (h *CustomerHandler) GetCustomerProfile(c *gin.Context) {
 	userId, ok := c.Get("userId")
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing userId")})
 		return
 	}
 
-	profile, err := h.service.GetUserProfile(c.Request.Context(), userId.(string))
+	profile, err := h.service.GetCustomerProfile(c.Request.Context(), userId.(string))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
