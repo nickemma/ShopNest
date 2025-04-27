@@ -11,26 +11,9 @@ ENV PATH="/usr/local/bin:/go/bin:$PATH"
 # Copy dependency files first for better caching
 COPY go.mod go.sum ./
 # Download dependencies with retries
-RUN for i in 1 2 3; do go mod download && break || sleep 5; done || (echo "Retrying... 3 attempts" && exit 1)
-# Copy source code
-COPY . .
-# Build application
-RUN mkdir -p ./tmp && \
-    CGO_ENABLED=0 GOOS=linux go build -o ./tmp/user-service ./cmd/main.go && \
-    CGO_ENABLED=0 GOOS=linux go build -o ./tmp/email-worker ./email-worker/email_worker.go
-## Final stage
-#FROM alpine:latest
-#WORKDIR /app
-## Install bash for better script handling
-#RUN apk add --no-cache bash
-## Copy air from builder stage
-#COPY --from=builder /usr/local/bin/air /usr/local/bin/air
-## Copy artifacts from builder
-#COPY --from=builder /app/tmp/ /app/tmp/
-#COPY --from=builder /app/.air-user.toml /app/
-#COPY --from=builder /app/.air-email.toml /app/
-#COPY --from=builder /app/migrations /app/migrations/
+RUN go mod download # Copy source code
 
+COPY . .
 EXPOSE 8080
 CMD ["air"]
 

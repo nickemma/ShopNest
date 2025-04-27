@@ -14,6 +14,7 @@ func RegisterCustomerRoutes(r *gin.RouterGroup, handler *handler.CustomerHandler
 
 	// Protected routes
 	auth := r.Group("/")
+
 	auth.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 	{
 		// Add your protected routes here

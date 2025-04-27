@@ -5,29 +5,35 @@
 
 help:
 	@echo "Available commands:"
-	@echo "  all     - Builds up"
+	@echo "  all     - Builds and starts services"
 	@echo "  build   - Build Docker images"
 	@echo "  up           - Start all services"
 	@echo "  down    - Stop all services"
 	@echo "  migrate  - Run migrations (assumes postgres is running)"
 	@echo "  test          - Runs the test suite"
+	@echo "  clean        - cleans up docker"
 
 all: build up
 
 # Build Docker images
 build:
-	docker-compose -f docker-compose.yml build --no-cache
+	docker-compose build --no-cache
 
 # Start all services
 up:
-	docker-compose -f docker-compose.yml up -d
+	docker-compose up -d
 
 # Stop all services
 down:
-	docker-compose -f docker-compose.yml down
+	docker-compose down
 
 migrate:
 	docker-compose exec user-service sh -c "goose -dir migrations postgres \"postgres://user:pass@postgres:5432/shopnest?sslmode=disable\" up"
 
 test:
 	go test -v ./...
+
+# Clean Docker images
+clean:
+	docker-compose down --rmi all
+	docker system prune -f

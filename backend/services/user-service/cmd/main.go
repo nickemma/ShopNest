@@ -48,7 +48,18 @@ func main() {
 	}
 	defer ch.Close()
 
-	_, err = ch.QueueDeclare("email_queue", true, false, false, false, nil)
+	_, err = ch.QueueDeclare(
+		"email_queue",
+		true,  // durable
+		false, // autoDelete
+		false, // exclusive
+		false, // noWait
+		amqp091.Table{
+			"x-message-ttl":           int32(86400000),  // 24h TTL
+			"x-dead-letter-exchange":  "dead_letters",   // Add this
+			"x-max-priority":          int32(10),        // Add this
+		},
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,6 +97,7 @@ func main() {
 	managerHandler := handler.NewManagerHandler(managerService)
 
 	r := gin.Default()
+	r.Use(gin.Logger()) // Enable Gin's built-in logger
 
 	api := r.Group("/api/v1")
 	routes.RegisterAuthRoutes(api.Group("/auth"), authHandler, cfg)
