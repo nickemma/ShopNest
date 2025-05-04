@@ -2,16 +2,16 @@ _format_version: "3.0"
 
 services:
   - name: user-service
-    url: http://user-service.app-net:8080
+    url: http://user-service:8080/api/v1
     routes:
       - name: user-service-route
         paths:
-          - /api/v1/
+          - /api/v1/users
         strip_path: true
   - name: product-service
-    url: http://product-service.app-net:8081
+    url: http://product-service:8081
     routes:
       - name: product-service-route
         paths:
-          - /api/v1/
+          - /api/v1/products
         strip_path: true

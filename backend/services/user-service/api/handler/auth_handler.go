@@ -63,7 +63,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required....."})
 		return
 	}
 
