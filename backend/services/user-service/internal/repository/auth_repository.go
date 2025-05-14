@@ -41,10 +41,10 @@ func (r *PostgresAuthRepository) CreateAccount(ctx context.Context, auth *domain
 func (r *PostgresAuthRepository) GetAccount(ctx context.Context, authId string) (*domain.Auth, error) {
 	auth := &domain.Auth{}
 
-	authQuery := `SELECT auth_id, user_id, user_type, email, password_hash, verified, created_at, updated_at
+	authQuery := `SELECT auth_id, user_id, user_type, email, verified, created_at, updated_at
                   FROM auth WHERE auth_id = $1`
 	err := r.db.QueryRow(ctx, authQuery, authId).Scan(&auth.AuthID, &auth.UserID, &auth.UserType, &auth.Email,
-		&auth.PasswordHash, auth.Verified, &auth.CreatedAt, &auth.UpdatedAt)
+		&auth.Verified, &auth.CreatedAt, &auth.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -54,10 +54,10 @@ func (r *PostgresAuthRepository) GetAccount(ctx context.Context, authId string) 
 func (r *PostgresAuthRepository) GetAccountByEmail(ctx context.Context, email string) (*domain.Auth, error) {
 	auth := &domain.Auth{}
 
-	authQuery := `SELECT auth_id, user_id, user_type, email, password_hash, verified, created_at, updated_at
+	authQuery := `SELECT auth_id, user_id, user_type, email,password_hash, verified, created_at, updated_at
                   FROM auth WHERE email = $1`
 	err := r.db.QueryRow(ctx, authQuery, email).Scan(&auth.AuthID, &auth.UserID, &auth.UserType, &auth.Email,
-		&auth.PasswordHash, auth.Verified, &auth.CreatedAt, &auth.UpdatedAt)
+		&auth.PasswordHash, &auth.Verified, &auth.CreatedAt, &auth.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

@@ -79,7 +79,7 @@ func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 func (h *AuthHandler) GetAccount(c *gin.Context) {
 	authId, ok := c.Get("authId")
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing sub")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "malformed access token. missing sub"})
 		return
 	}
 
@@ -95,4 +95,27 @@ func (h *AuthHandler) GetAccount(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": auth})
+}
+
+
+// Refresh token GET /refresh
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	authId, ok := c.Get("authId")
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing sub").Error()})
+		return
+	}
+
+	if authId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
+		return
+	}
+
+	token, err := h.service.RefreshToken(c.Request.Context(), authId.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }

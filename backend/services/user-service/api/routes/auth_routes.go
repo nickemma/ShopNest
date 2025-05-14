@@ -21,6 +21,7 @@ func RegisterAuthRoutes(r *gin.RouterGroup, handler *handler.AuthHandler, cfg co
 	{
 		// Add your protected routes here
 		auth.GET("/account", handler.GetAccount)
+		auth.GET("/refresh", handler.RefreshToken)
 	}
 
 }

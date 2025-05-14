@@ -20,7 +20,7 @@ func RegisterCustomerRoutes(r *gin.RouterGroup, handler *handler.CustomerHandler
 		// Add your protected routes here
 		auth.POST("/register", handler.RegisterCustomer)
 
-		auth.PATCH("/activate", handler.ActivateCustomer)
+		// auth.PATCH("/activate", handler.ActivateCustomer)
 		auth.GET("/profile", handler.GetCustomerProfile)
 	}
 

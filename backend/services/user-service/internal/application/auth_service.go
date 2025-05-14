@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"time"
+	"fmt"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -23,6 +24,7 @@ type AuthService interface {
 	Login(ctx context.Context, email, password string) (string, error)
 	VerifyEmail(ctx context.Context, token string) error
 	GetAccount(ctx context.Context, authId string) (*domain.Auth, error)
+	RefreshToken(ctx context.Context, authId string) (string, error)
 }
 
 type authService struct {
@@ -102,13 +104,16 @@ func (a *authService) Login(ctx context.Context, email, password string) (string
 	// Get user and auth data
 	auth, err := a.repo.GetAccountByEmail(ctx, email)
 	if err != nil {
-		return "", errors.New("invalid credentials")
+		return "", fmt.Errorf("invalid credentials: ", err)
 	}
 
-	// Check if email is verified (status must be "active")
-	if !auth.Verified {
-		return "", errors.New("email not verified")
-	}
+	// Initially, this was enforcing user to verify on login, but the new flow
+	// is to allow them execute actions like browse, add to cart but critical
+	// endpoints would check for verifcation status
+	// // Check if email is verified (status must be "active")
+	// if !auth.Verified {
+	// 	return "", errors.New("email not verified")
+	// }
 
 	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(auth.PasswordHash), []byte(password)); err != nil {
@@ -121,6 +126,7 @@ func (a *authService) Login(ctx context.Context, email, password string) (string
 		"userId":   auth.UserID,
 		"userType": auth.UserType,
 		"email":    auth.Email,
+		"verified": auth.Verified,
 		"exp":      time.Now().Add(24 * time.Hour).Unix(),
 		"iat":      time.Now().Unix(),
 	}
@@ -171,3 +177,36 @@ func (a *authService) GetAccount(ctx context.Context, authId string) (*domain.Au
 	}
 	return auth, nil
 }
+
+func (a *authService) RefreshToken(ctx context.Context, authId string) (string, error) {
+
+	auth, err := a.repo.GetAccount(ctx, authId)
+	if err != nil {
+		return "", fmt.Errorf("auth cannont be retrieved: ", err)
+	}
+
+	// Create JWT claims
+	claims := jwt.MapClaims{
+		"sub":      auth.AuthID,
+		"userId":   auth.UserID,
+		"userType": auth.UserType,
+		"email":    auth.Email,
+		"verified": auth.Verified,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
+		"iat":      time.Now().Unix(),
+	}
+
+	// Generate token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign token
+	tokenString, err := token.SignedString([]byte(a.jwtSecret))
+	if err != nil {
+		return "", errors.New("failed to generate token")
+	}
+
+	// this is where we deal with session data
+
+	return tokenString, nil
+}
+

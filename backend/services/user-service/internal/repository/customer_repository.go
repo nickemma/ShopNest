@@ -41,7 +41,7 @@ func (r *PostgresCustomerRepository) CreateCustomer(ctx context.Context, authId 
         INSERT INTO customers (customer_id, name, email, phone, address, status, preferences, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 	_, err = tx.Exec(ctx, userQuery, customer.CustomerID, customer.Name, customer.Email, customer.Phone,
-		customer.Address, "inactive", customer.Preferences, time.Now(), time.Now())
+		customer.Address, "active", customer.Preferences, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}

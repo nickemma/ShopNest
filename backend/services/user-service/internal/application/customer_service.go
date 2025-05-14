@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 	"errors"
-	"fmt"
+	// "fmt"
 	"log"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 // UserService defines the interface for user-related operations
 type CustomerService interface {
 	RegisterCustomer(ctx context.Context, authId, name, email string) (string, error)
-	ActivateCustomer(ctx context.Context, authId string) (string, error)
+	// ActivateCustomer(ctx context.Context, authId string) (string, error)
 	GetCustomerProfile(ctx context.Context, customerId string) (*domain.Customer, error)
 }
 
@@ -37,6 +37,10 @@ func NewCustomerService(
 }
 
 // Register handles user registration
+// This is created separately from update user because it needs to reissue token to reflect the userId
+// Update customer does not need that. This prevents the log in/out flow for updating token 
+// Instead of returning token here, the best approach is to have Frontend call the refresh token endpoint
+// after creating a customer. This is clear separation of concern but with increased latency.
 func (u *customerService) RegisterCustomer(ctx context.Context, authId, name, email string) (string, error) {
 	// Generate UUIDs for user and auth
 	customerID := uuid.New().String()
@@ -55,7 +59,10 @@ func (u *customerService) RegisterCustomer(ctx context.Context, authId, name, em
 		CustomerID:    customerID,
 		Name:      name,
 		Email:     email,
-		Status:    "inactive", // customer starts as inactive until email is verified
+		// status field not needed. The email verified field on auth is enough
+		// setting to active by default (why: changing/refactoring of code to remove
+		// status is tiring)
+		Status:    "active", // enforced in db
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -65,26 +72,29 @@ func (u *customerService) RegisterCustomer(ctx context.Context, authId, name, em
 		log.Printf("Failed to save a customer to database: %v", err)
 		return "", err
 	}
+
+
 	return customerID, nil
 }
 
-func (u *customerService) ActivateCustomer(ctx context.Context, authId string) (string, error) {
+// Why are we activating a customer ? No need
+// Once they verified their email; thats enough activation. This is an order system.
+// func (u *customerService) ActivateCustomer(ctx context.Context, authId string) (string, error) {
 
-	auth, err := u.authRepo.GetAccount(ctx, authId)
-	if err != nil {
-		return "", err
-	}
+// 	auth, err := u.authRepo.GetAccount(ctx, authId)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	if !auth.Verified {
-		return "", errors.New("cannot approve: customer yet to verify email")
-	}
-	if err := u.repo.UpdateCustomerStatus(ctx, auth.UserID, "active"); err != nil {
-		return "", err
-	}
+// 	if !auth.Verified {
+// 		return "", errors.New("cannot approve: customer yet to verify email")
+// 	}
+// 	if err := u.repo.UpdateCustomerStatus(ctx, auth.UserID, "active"); err != nil {
+// 		return "", err
+// 	}
 
-	return fmt.Sprintf("customer with email address %+s has been approved\n", auth.Email), nil
-
-}
+// 	return fmt.Sprintf("customer with email address %+s has been approved\n", auth.Email), nil
+// }
 
 func (u *customerService) GetCustomerProfile(ctx context.Context, customerId string) (*domain.Customer, error) {
 	customer, err := u.repo.GetCustomer(ctx, customerId)

@@ -28,15 +28,16 @@ func (h *CustomerHandler) RegisterCustomer(c *gin.Context) {
 
 	authId, ok := c.Get("authId")
 	if !ok || authId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token, missing sub")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "malformed access token, missing sub"})
 		return
 	}
 	email, ok := c.Get("email")
 	if !ok || authId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token, missing email")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "malformed access token, missing email"})
 		return
 	}
 
+	// obtain the name and add the authId/email manually below
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -55,39 +56,45 @@ func (h *CustomerHandler) RegisterCustomer(c *gin.Context) {
 }
 
 // Register handles POST /activate
-func (h *CustomerHandler) ActivateCustomer(c *gin.Context) {
-	userType, ok := c.Get("userType")
+// func (h *CustomerHandler) ActivateCustomer(c *gin.Context) {
+// 	userType, ok := c.Get("userType")
 
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing userId")})
-		return
-	}
+// 	if !ok {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing userId")})
+// 		return
+// 	}
 
-	if userType.(string) != "MANAGER" {
-		c.JSON(http.StatusForbidden, gin.H{"message": "only a manager can activate user"})
-		return
-	}
-	var req struct {
-		AuthID string `json:"authId" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// 	if userType.(string) != "MANAGER" {
+// 		c.JSON(http.StatusForbidden, gin.H{"message": "only a manager can activate user"})
+// 		return
+// 	}
+// 	var req struct {
+// 		AuthID string `json:"authId" binding:"required"`
+// 	}
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	customerID, err := h.service.ActivateCustomer(c.Request.Context(), req.AuthID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+// 	customerID, err := h.service.ActivateCustomer(c.Request.Context(), req.AuthID)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{"customerId": customerID, "message": "customer activated"})
-}
+// 	c.JSON(http.StatusOK, gin.H{"customerId": customerID, "message": "customer activated"})
+// }
 
 func (h *CustomerHandler) GetCustomerProfile(c *gin.Context) {
 	userId, ok := c.Get("userId")
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing userId")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing userId").Error()})
+		return
+	}
+
+	if userId == "" {
+		// c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("missing userId: user is yet to create profile. Create profile or refresh token")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("customer yet to update profile. Update profile and/or refresh token").Error()})
 		return
 	}
 
@@ -96,6 +103,7 @@ func (h *CustomerHandler) GetCustomerProfile(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"data": profile})
 	return
 }
