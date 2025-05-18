@@ -32,10 +32,11 @@ func (mgr *PostgresManagerRepository) RegisterManager(ctx context.Context, authI
 	defer tx.Rollback(ctx)
 
 	mgrQuery := `
-		INSERT INTO managers (manager_id, name, email, role, approved)
-		VALUES ($1, $2, $3, $4, $5)`
+		INSERT INTO managers (manager_id, name, email, role, approved, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-	_, err = tx.Exec(ctx, mgrQuery, manager.ManagerID, manager.Name, manager.Email, manager.Role /*manager.Approved*/, false)
+	_, err = tx.Exec(ctx, mgrQuery, manager.ManagerID, manager.Name,
+		 manager.Email, manager.Role /*manager.Approved*/, false, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}

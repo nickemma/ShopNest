@@ -54,6 +54,10 @@ func (u *customerService) RegisterCustomer(ctx context.Context, authId, name, em
 		return "", errors.New("account email does not match")
 	}
 
+	if !auth.Verified {
+		return "", errors.New("email not verified")
+	}
+
 	// Create customer and auth models
 	customer := &domain.Customer{
 		CustomerID:    customerID,

@@ -63,8 +63,16 @@ func (h *ManagerHandler) ApproveRegistration(c *gin.Context) {
 		return
 	}
 
-	// this will be extended with roles or super admin only
-	if userType.(string) != "MANAGER" {
+	email, ok := c.Get("email")
+
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("malformed access token. missing email")})
+		return
+	}
+
+	// TODO: this will be extended with roles or super admin only
+	// workaround: encode the super admin
+	if userType.(string) != "MANAGER" && email != "superadmin@gmail.com"  {
 		c.JSON(http.StatusForbidden, gin.H{"message": "only a manager can approve other manager"})
 		return
 	}
