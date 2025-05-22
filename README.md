@@ -15,8 +15,9 @@ A scalable e-commerce platform designed for **real-time inventory management**, 
 ## 🛠️ Tech Stack
 
 | Category             | Technologies                                                             |
-| -------------------- | ------------------------------------------------------------------------ |
+|----------------------|--------------------------------------------------------------------------|
 | **Backend**          | Go (Golang) microservices                                                |
+| **Frontend**         | Next.js, Typescript, TailwindCss, Zustand, Axios                         |
 | **Databases**        | PostgreSQL (orders/users), Redis (product cache), Elasticsearch (search) |
 | **Messaging**        | RabbitMQ (order processing, inventory sync)                              |
 | **Authentication**   | JWT, bcrypt (password hashing)                                           |
